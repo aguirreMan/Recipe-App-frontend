@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        window.BASE_API_URL = "https://recipe-app-server-production-c8a0.up.railway.app"
+    </script>
+    <script src="script.js" defer></script>
+    <title>Recipe Manager</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="assets/logo.png" alt="logo of my Recipe App">
+            <h1 class="title">Tasty food!</h1>
+            <div class="saved-recipes">
+                <img src="assets/star.png" alt="star to view favorite saved recipes">
+            </div>
+        </div>
+    </header>
+    <main class="content">
+        <section class="search-food">
+            <label for="search-food">Search for Food!</label>
+            <div class="search-items-group">
+                <input type="search" id="search-food" placeholder="tacos, pizza, chicken">
+                <button id="search">Search</button>
+            </div>
+        </section>
+        <section class="food-categories">
+            <h1 class="category-heading">Not sure what to look for checkout our categories</h1>
+            <div class="categories">
+                <div class="category-card" data-category="breakfast">
+                    <h2 class="category-menu">Breakfast</h2>
+                    <img src="assets/breakfast.jpg" alt="image of breakfast pancakes with blueberies">
+                </div>
+                <div class="category-card" data-category="lunch">
+                    <h2 class="category-menu">Lunch</h2>
+                    <img src="assets/lunch.jpg" alt="image of lunch plate">
+                </div>
+                <div class="category-card" data-category="vegan">
+                    <h2 class="category-menu">Vegan</h2>
+                    <img src="assets/vegan.jpg" alt="image of a vegan salad">
+                </div>
+                <div class="category-card" data-category="dinner">
+                    <h2 class="category-menu">Dinner</h2>
+                    <img src="assets/dinner.jpg" alt="image of a dinner table">
+                </div>
+                <div class="category-card" data-category="seafood">
+                    <h2 class="category-menu">seafood</h2>
+                    <img src="assets/seafood.jpg" alt="image of shrimp">
+                </div>
+                <div class="category-card" data-category="desserts">
+                    <h2 class="category-menu">Desserts</h2>
+                    <img src="assets/desserts.jpg" alt="image of sweet sugary donuts">
+                </div>
+            </div>
+        </section>
+        <section class="recipe-content">
+            <h2 class="results-heading">Recipes</h2>
+        <div class="recipe-cards-section">
+        <!--<div class="recipe-card">
+            <img src="https://via.placeholder.com/150" alt="Recipe 1">
+            <h3>Spicy Salmon Tacos</h3>
+            <p>Delicious salmon with a spicy twist.</p>
+        </div>
+        <div class="recipe-card">
+            <img src="https://via.placeholder.com/150" alt="Recipe 2">
+            <h3>Classic Caesar Salad</h3>
+            <p>Fresh romaine with Caesar dressing.</p>
+        </div>
+        <div class="recipe-card">
+            <img src="https://via.placeholder.com/150" alt="Recipe 3">
+            <h3>Vegan Buddha Bowl</h3>
+            <p>A nourishing mix of veggies and grains.</p>
+        </div>
+        <div class="recipe-card">
+            <img src="https://via.placeholder.com/150" alt="Recipe 4">
+            <h3>Grilled Shrimp Skewers</h3>
+            <p>Perfectly grilled shrimp with herbs.</p>
+        </div>
+        <div class="recipe-card">
+            <img src="https://via.placeholder.com/150" alt="Recipe 5">
+            <h3>Chocolate Lava Cake</h3>
+            <p>Warm and gooey chocolate delight.</p>
+        </div>
+        <div class="recipe-card">
+            <img src="https://via.placeholder.com/150" alt="Recipe 6">
+            <h3>Breakfast Smoothie</h3>
+            <p>A healthy start packed with fruits.</p>
+        </div>-->
+    </div>
+            <!--Spoonacular recipes injected here-->
+        </section>
+        <div class="load-more">
+            <button class="loader">
+                <img class="load-arrow" src="assets/arrow.png" alt="image of an arrow to direct users to scroll down">
+                Load More Recipes!
+            </button>
+        </div>
+    </main>
+</body>
+</html>
