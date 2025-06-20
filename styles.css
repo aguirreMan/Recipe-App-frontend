@@ -232,6 +232,21 @@ button#search {
   transform: translateY(4px) scale(1.2);
 }
 
+.new-recipes{
+  cursor: pointer;
+  align-items: center;
+  border: none;
+  background-color: #00843c;
+  color: white;
+  font-family: 'Libre Baskerville', serif;
+  padding: 10px;
+  gap: 0.5em;
+  font-size: 1.3em;
+  transition: background-color 0.3s ease;
+  border-radius: 10px;
+  display: none;
+}
+
 .modal {
   position: fixed;
   top: 50%;

@@ -114,9 +114,11 @@ function displayCategories(){
     categories.forEach(category => {
         category.addEventListener('click', async () => {
             const categoryName = category.dataset.category
+            currentQuery = categoryName
+            currentPage = 1
             const {recipes, totalResults} = await fetchRecipes(categoryName, 1, true)
             displayRecipes(recipes)
-            displayLoaderButton(recipes, totalResults)
+            displayLoaderButton(recipes, totalResults, true)
         })
     })
 }
@@ -152,33 +154,46 @@ function searchRecipes(){
 searchRecipes()
 
 const loadMoreButton = document.querySelector('.loader')
+const newRecipesButton = document.querySelector('.new-recipes')
+console.log(newRecipesButton)
 
-function displayLoaderButton(recipes, totalResults){
+function displayLoaderButton(recipes, totalResults, isRandom = false){
     if(!recipes || !Array.isArray(recipes)){
         loadMoreButton.style.display = 'none'
+        newRecipesButton.style.display = 'none'
         return
     }
-    if(totalResults > recipes.length){
-        loadMoreButton.style.display = 'block'
-    } else {
+    if(isRandom){
         loadMoreButton.style.display = 'none'
+        newRecipesButton.style.display = 'block'
+    } else {
+        newRecipesButton.style.display = 'none'
+        if(totalResults > recipes.length){
+            loadMoreButton.style.display = 'block'
+        } else {
+            loadMoreButton.style.display = 'none'
+        }
     }
 }
 
+
 loadMoreButton.addEventListener('click', loadMoreRecipes)
+newRecipesButton.addEventListener('click', generateNewRecipes)
+
 
 async function loadMoreRecipes(){
+    if(!currentQuery) return
    const maxLoadableRecipes = 60
    const newRecipesPage = currentPage + 1
    currentPage = newRecipesPage 
    loadMoreButton.disabled = true
    const fetchedNewRecipes = await fetchRecipes(currentQuery, currentPage)
-   if(!fetchedNewRecipes){
+   if(!fetchedNewRecipes || !fetchedNewRecipes.recipes){
     loadMoreButton.disabled = false
     return
    }
-   totalResults = fetchedNewRecipes.totalResults
    appendRecipes(fetchedNewRecipes.recipes)
+   totalResults = fetchedNewRecipes.totalResults
    const loadedRecipes = currentPage * recipesPerPage
 
     if(loadedRecipes < totalResults && loadedRecipes < maxLoadableRecipes){
@@ -186,6 +201,14 @@ async function loadMoreRecipes(){
    } else {
        loadMoreButton.style.display = 'none'
    }    
+}
+
+async function generateNewRecipes(){
+    if(!currentQuery) return
+    currentPage = 1
+    const {recipes, totalResults} = await fetchRecipes(currentQuery, 1, true)
+    displayRecipes(recipes)
+    displayLoaderButton(recipes, totalResults, true)
 }
 
 function appendRecipes(recipes){
