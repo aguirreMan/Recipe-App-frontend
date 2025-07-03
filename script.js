@@ -58,21 +58,23 @@ function attachEventListeners(){
             const title = event.currentTarget.querySelector('h3').textContent
             const image = event.currentTarget.querySelector('img.recipe-image').src
             const recipeInstructions = await displayRecipeData(recipeId)
-            displayModal({
+            console.log('Step 2 - recipeInstructions:', recipeInstructions)
+            const modal = displayModal({
                 title,
                 image,
                 instructions: recipeInstructions.instructions,
-                ingredients: recipeInstructions.ingredients
+                ingredients: recipeInstructions.ingredients,
+                servings: recipeInstructions.servings
             })
         })
     })
 }
 
 function displayModal(recipe){
-    console.log(recipe.ingredients)
-    const modalOverlay = document.createElement('div');
-    modalOverlay.classList.add('modal-overlay');
-    const modal = document.createElement('div');
+    console.log(' Step 3 - recipe received in modal:', recipe)
+    const modalOverlay = document.createElement('div')
+    modalOverlay.classList.add('modal-overlay')
+    const modal = document.createElement('div')
     modal.classList.add('modal')
      
     modal.innerHTML = `
@@ -82,11 +84,26 @@ function displayModal(recipe){
         </div>
         <img src="${recipe.image}" alt="${recipe.title}" class="modal-image" />
         <div class="modal-body">
+            <label class="switch">
+                <input type="checkbox" id="unit-toggle">
+                <span class="slider"></span>
+            </label>
+            <span id="unit-status">US units </span>
+
+            <div class="servings-control">
+                <button id="increment-servings">+</button>
+                <button id="decrement-servings">-</button>
+                <button id="reset-servings">reset</button>
+                <span id="servings-count">${recipe.servings || 1}</span>
+            </div>
             <h2>Instructions</h2>
             ${recipe.instructions.map(instruction => `<p><strong>Step ${instruction.number}:</strong> ${instruction.step}</p>`).join('')}
             <h2>Ingredients</h2>
-            <ul>
-                ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+            <ul id="ingredients-list">
+                ${recipe.ingredients.map(ingredient =>`
+                <li data-us="${ingredient.name}: ${ingredient.measures.us}"
+                data-metric="${ingredient.name}: ${ingredient.measures.metric}">
+                ${ingredient.name}: ${ingredient.measures.us}</li>`).join('')}
             </ul>
         </div>`
     
@@ -98,15 +115,120 @@ function displayModal(recipe){
     modalOverlay.remove()
     document.body.style.overflow = ''
     })
+    const originalServingsSize = recipe.servings || 1
+    console.log('Step 4 - originalServingsSize:', originalServingsSize)
+
+    const addServingsButton = document.querySelector('#increment-servings')
+    const decrementServingsButton = document.querySelector('#decrement-servings')
+    const resetServingsButton = document.querySelector('#reset-servings')
+    const servingsCount = document.querySelector('#servings-count')
+    updateUnitToggle(recipe, originalServingsSize)
+
+    addServingsButton.addEventListener('click', () => scaleServings(recipe, 'increment', servingsCount, originalServingsSize));
+    decrementServingsButton.addEventListener('click', () => scaleServings(recipe, 'decrement', servingsCount, originalServingsSize))
+    resetServingsButton.addEventListener('click', () => scaleServings(recipe, 'reset', servingsCount, originalServingsSize))
+    return modal
+}
+
+function updateUnitToggle(recipe, originalServingsSize){
+    const unitToggle = document.querySelector('#unit-toggle')
+    const unitStatus = document.querySelector('#unit-status')
+    unitToggle.addEventListener('change', () => {
+        let system
+        if(unitToggle.checked){
+            unitStatus.textContent = 'metric system'
+            system = 'metric'
+        } else {
+            unitStatus.textContent = 'us system'
+            system = 'us'
+        }
+        updateIngredientsUnit(system)
+        scaleIngredients(recipe, originalServingsSize)
+    })
+    scaleIngredients(recipe, originalServingsSize)
+}
+
+function updateIngredientsUnit(system){
+    const listOfIngredients = document.querySelectorAll('#ingredients-list li')
+    listOfIngredients.forEach(li => {
+        if(system === 'metric'){
+            li.textContent = li.dataset.metric
+        } else {
+            li.textContent = li.dataset.us
+        }
+    })
+}
+
+function scaleServings(recipe, operation, servingsCount, originalServingsSize){
+    switch(operation){
+        case 'increment':
+            recipe.servings++
+            break
+        case 'decrement':
+            if(recipe.servings > 1) recipe.servings--
+            break
+        case 'reset': 
+            recipe.servings = originalServingsSize
+            break
+    }
+    servingsCount.textContent =  recipe.servings
+    scaleIngredients(recipe, originalServingsSize)
+}
+
+function scaleIngredients(recipe, originalServingsSize){
+    const listOfIngredients = document.querySelectorAll('#ingredients-list li')
+    const unitToggle = document.querySelector('#unit-toggle')
+    const isMetricChecked = unitToggle.checked
+    recipe.ingredients.forEach((ingredient, index) => {
+        const li = listOfIngredients[index]
+        const dataUs = li.dataset.us
+        const dataMetric = li.dataset.metric
+
+        const currentDataString = isMetricChecked ? dataMetric : dataUs
+        const parts = currentDataString.split(':')[1].trim().split(' ')
+
+        const originalAmount = parseFloat(parts[0])
+
+        console.log(`Scaling ingredient: ${ingredient.name}`, { currentDataString, parts, originalAmount, recipeServings: recipe.servings, originalServingsSize })
+
+
+        if(isNaN(originalAmount)){
+            li.textContent = currentDataString
+            return
+        }
+
+        const unit = parts.slice(1).join(' ')
+
+        const calculateServings = (originalAmount / originalServingsSize) * recipe.servings
+
+        const formatted = Number.isInteger(calculateServings) ? calculateServings : +calculateServings.toFixed(2)
+        li.textContent = `${ingredient.name}: ${formatted} ${unit}`
+    })
 }
 
 async function displayRecipeData(recipeId){
-    const apiEndpoint = `${BASE_API}/api/recipes/${recipeId}/instructions`
-    if(!apiEndpoint) return 
-    const apiData = await fetch(apiEndpoint)
-    const data = await apiData.json()
-    console.log(data)
-    return data
+    if(!recipeId){
+        console.error('Missing recipe Id')
+        return
+    }
+    const endPoint =  `${BASE_API}/api/recipes/${recipeId}/instructions`
+    const response = await fetch(endPoint)
+    if(!response.ok){
+        console.error('error fetching recipe data')
+        const errorData = await response.json()
+        console.error('server error', errorData)
+        return
+    }
+    const recipeData = await response.json()
+     console.log(' Step 1 - recipeData from backend:', recipeData)
+
+    return {
+      instructions: recipeData.instructions,
+      ingredients: recipeData.ingredients,
+      servings: recipeData.servings,
+      readyInMinutes: recipeData.readyInMinutes,
+      recipeId: recipeData.id
+    }
 }
 
 function displayCategories(){
@@ -155,7 +277,7 @@ searchRecipes()
 
 const loadMoreButton = document.querySelector('.loader')
 const newRecipesButton = document.querySelector('.new-recipes')
-console.log(newRecipesButton)
+//console.log(newRecipesButton)
 
 function displayLoaderButton(recipes, totalResults, isRandom = false){
     if(!recipes || !Array.isArray(recipes)){
