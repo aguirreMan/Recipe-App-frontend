@@ -5,7 +5,7 @@ const recipesPerPage = 12
 let currentQuery = '' 
 let totalResults = 0 
 const spoonacularContainer = document.querySelector('.recipe-cards-section')
-
+//Function is fetching the complex search from spoonacular
 async function fetchRecipes(query, page = 1, isRandom = false){
     const number = recipesPerPage
     let API_URL = `${BASE_API}/api/recipes?query=${query}&number=${recipesPerPage}`
@@ -69,7 +69,7 @@ function attachEventListeners(){
         })
     })
 }
-
+//Have a modal with all the data of recipe instructions and ingredients
 function displayModal(recipe){
     console.log(' Step 3 - recipe received in modal:', recipe)
     const modalOverlay = document.createElement('div')
@@ -174,7 +174,7 @@ function scaleServings(recipe, operation, servingsCount, originalServingsSize){
     servingsCount.textContent =  recipe.servings
     scaleIngredients(recipe, originalServingsSize)
 }
-
+// Function will scale ingredients allowing users to add more servings decrement servings
 function scaleIngredients(recipe, originalServingsSize){
     const listOfIngredients = document.querySelectorAll('#ingredients-list li')
     const unitToggle = document.querySelector('#unit-toggle')
@@ -205,7 +205,7 @@ function scaleIngredients(recipe, originalServingsSize){
         li.textContent = `${ingredient.name}: ${formatted} ${unit}`
     })
 }
-
+//This function is going to display the recipe data from instructions url and ingredients
 async function displayRecipeData(recipeId){
     if(!recipeId){
         console.error('Missing recipe Id')
@@ -230,7 +230,7 @@ async function displayRecipeData(recipeId){
       recipeId: recipeData.id
     }
 }
-
+// These are recipe categories i created to give users an idea if they dont know
 function displayCategories(){
     const categories = document.querySelectorAll('[data-category]')
     categories.forEach(category => {
@@ -246,7 +246,7 @@ function displayCategories(){
 }
 
 displayCategories()
-
+// Lets user search mannualy for specific recipes
 function searchRecipes(){
     const searchBar = document.querySelector('#search-food')
     const searchButton = document.querySelector('#search')
